@@ -16,6 +16,7 @@ export const getPersons = () => api.get('/person');
 export const getPersonById = (id) => api.get(`/person/${id}`);
 export const getSkillGaps = (personId, jobId) => api.get(`/person/${personId}/skill-gaps?jobId=${jobId}`);
 export const getRecommendations = (personId) => api.get(`/person/${personId}/recommendations`);
+export const addPersonSkill = (personId, skillName) => api.post(`/person/${personId}/skills`, { skillName });
 
 export const getJobGraph = (id) => api.get(`/graph/job/${id}`);
 export const getSkillGraph = (id) => api.get(`/graph/skill/${id}`);

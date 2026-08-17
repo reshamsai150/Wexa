@@ -6,9 +6,9 @@ const driver = neo4j.driver(
   neo4j.auth.basic(process.env.COGNODB_USERNAME || process.env.COGNODB_USER, process.env.COGNODB_PASSWORD),
   { 
     disableLosslessIntegers: true,
-    maxConnectionLifetime: 3 * 60 * 1000, // 3 minutes
+    maxConnectionLifetime: 3 * 60 * 1000,
     maxConnectionPoolSize: 50,
-    connectionAcquisitionTimeout: 2000
+    connectionAcquisitionTimeout: 60000
   }
 );
 

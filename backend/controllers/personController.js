@@ -46,9 +46,24 @@ const getAllPersons = async (req, res, next) => {
   }
 };
 
+const addSkill = async (req, res, next) => {
+  try {
+    const { personId } = req.params;
+    const { skillName } = req.body;
+    if (!skillName) {
+      return res.status(400).json({ message: 'Missing skillName in body' });
+    }
+    await personService.addSkillToPerson(personId, skillName);
+    res.json({ success: true });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   getPersonById,
   getSkillGap,
   getRecommendations,
-  getAllPersons
+  getAllPersons,
+  addSkill
 };

@@ -71,9 +71,24 @@ const getAllPersons = async () => {
   }
 };
 
+const addSkillToPerson = async (personId, skillName) => {
+  const session = getSession();
+  try {
+    await session.run(`
+      MATCH (p:Person {id: $personId})
+      MATCH (s:Skill {name: $skillName})
+      MERGE (p)-[:HAS_SKILL]->(s)
+    `, { personId, skillName });
+    return true;
+  } finally {
+    await session.close();
+  }
+};
+
 module.exports = {
   getPersonById,
   getSkillGap,
   getRecommendations,
-  getAllPersons
+  getAllPersons,
+  addSkillToPerson
 };

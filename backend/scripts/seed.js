@@ -61,12 +61,12 @@ const seedData = async () => {
 
     // Connect Job to Skill (REQUIRES)
     const jobSkills = {
-      'Frontend Engineer': ['JavaScript', 'React', 'TypeScript', 'REST API', 'Testing', 'HTML', 'CSS', 'Next.js'],
-      'React Developer': ['JavaScript', 'React', 'HTML', 'CSS', 'Redux'],
-      'Backend Engineer': ['Node.js', 'Express', 'SQL', 'MongoDB', 'REST API', 'Docker'],
-      'Full Stack Developer': ['JavaScript', 'React', 'Node.js', 'Express', 'MongoDB', 'REST API', 'TypeScript'],
-      'AI Engineer': ['Python', 'Machine Learning', 'TensorFlow', 'PyTorch', 'FastAPI', 'SQL'],
-      'Web Developer': ['JavaScript', 'HTML', 'CSS', 'React', 'REST API']
+      'Frontend Engineer': ['JavaScript', 'React', 'TypeScript', 'REST API', 'Testing', 'HTML', 'CSS', 'Next.js', 'Git'],
+      'React Developer': ['JavaScript', 'React', 'HTML', 'CSS', 'Redux', 'Git'],
+      'Backend Engineer': ['Node.js', 'Express', 'SQL', 'MongoDB', 'REST API', 'Docker', 'AWS', 'Java', 'Spring Boot'],
+      'Full Stack Developer': ['JavaScript', 'React', 'Node.js', 'Express', 'MongoDB', 'REST API', 'TypeScript', 'AWS', 'GraphQL'],
+      'AI Engineer': ['Python', 'Machine Learning', 'TensorFlow', 'PyTorch', 'FastAPI', 'SQL', 'AWS'],
+      'Web Developer': ['JavaScript', 'HTML', 'CSS', 'React', 'REST API', 'Git']
     };
 
     for (const [jobTitle, skills] of Object.entries(jobSkills)) {
@@ -100,7 +100,12 @@ const seedData = async () => {
       ['Node.js', 'Express'],
       ['Python', 'Machine Learning'],
       ['Machine Learning', 'TensorFlow'],
-      ['Machine Learning', 'PyTorch']
+      ['Machine Learning', 'PyTorch'],
+      ['AWS', 'Docker'],
+      ['Docker', 'Node.js'],
+      ['Java', 'Spring Boot'],
+      ['REST API', 'GraphQL'],
+      ['TypeScript', 'GraphQL']
     ];
 
     for (const [skill1, skill2] of relatedSkills) {
@@ -123,7 +128,7 @@ const seedData = async () => {
     // Let's make Bob a backend person
     await session.run(`
       MATCH (p:Person {name: 'Bob'})
-      UNWIND ['Node.js', 'Express', 'SQL', 'MongoDB'] AS skillName
+      UNWIND ['Node.js', 'Express', 'SQL', 'MongoDB', 'AWS', 'Docker'] AS skillName
       MATCH (s:Skill {name: skillName})
       MERGE (p)-[:HAS_SKILL]->(s)
     `);

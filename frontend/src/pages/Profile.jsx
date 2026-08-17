@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { User, Target, AlertTriangle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { User, Target, AlertTriangle, CheckCircle2, TrendingUp, Plus } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { getPersons, getPersonById, getJobs, getSkillGaps, getRecommendations } from '../lib/api';
+import { getPersons, getPersonById, getJobs, getSkillGaps, getRecommendations, getSkills, addPersonSkill } from '../lib/api';
 
 export default function Profile() {
   const [persons, setPersons] = useState([]);
   const [jobs, setJobs] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
   
   const [selectedPerson, setSelectedPerson] = useState(null);
   const [selectedJobId, setSelectedJobId] = useState('');
@@ -15,14 +16,19 @@ export default function Profile() {
   const [recommendations, setRecommendations] = useState([]);
   
   const [loading, setLoading] = useState(true);
+  
+  const [isAdding, setIsAdding] = useState(false);
+  const [selectedSkill, setSelectedSkill] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Load initial dropdown data
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [pRes, jRes] = await Promise.all([getPersons(), getJobs()]);
+        const [pRes, jRes, sRes] = await Promise.all([getPersons(), getJobs(), getSkills()]);
         setPersons(pRes.data);
         setJobs(jRes.data);
+        setAllSkills(sRes.data);
         if (pRes.data.length > 0) {
           setSelectedPerson(pRes.data[0].id);
         }
@@ -35,45 +41,66 @@ export default function Profile() {
     fetchData();
   }, []);
 
+  const fetchPersonData = async () => {
+    if (!selectedPerson) return;
+    try {
+      const [pData, rData] = await Promise.all([
+        getPersonById(selectedPerson),
+        getRecommendations(selectedPerson)
+      ]);
+      setPersonData(pData.data);
+      setRecommendations(rData.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // Load person details and recommendations
   useEffect(() => {
-    if (selectedPerson) {
-      const fetchPersonData = async () => {
-        try {
-          const [pData, rData] = await Promise.all([
-            getPersonById(selectedPerson),
-            getRecommendations(selectedPerson)
-          ]);
-          setPersonData(pData.data);
-          setRecommendations(rData.data);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      fetchPersonData();
-    }
+    fetchPersonData();
   }, [selectedPerson]);
+
+  const fetchGaps = async () => {
+    if (!selectedPerson || !selectedJobId) {
+      setSkillGaps([]);
+      return;
+    }
+    try {
+      const res = await getSkillGaps(selectedPerson, selectedJobId);
+      setSkillGaps(res.data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Load skill gaps when job changes
   useEffect(() => {
-    if (selectedPerson && selectedJobId) {
-      const fetchGaps = async () => {
-        try {
-          const res = await getSkillGaps(selectedPerson, selectedJobId);
-          setSkillGaps(res.data);
-        } catch (error) {
-          console.error(error);
-        }
-      };
-      fetchGaps();
-    } else {
-      setSkillGaps([]);
-    }
+    fetchGaps();
   }, [selectedPerson, selectedJobId]);
+
+  const handleAddSkillSubmit = async () => {
+    if (!selectedSkill || !selectedPerson) return;
+    setIsSubmitting(true);
+    try {
+      await addPersonSkill(selectedPerson, selectedSkill);
+      await fetchPersonData();
+      await fetchGaps();
+      setIsAdding(false);
+      setSelectedSkill('');
+    } catch (error) {
+      console.error('Failed to add skill:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (loading) return <div className="animate-pulse glass-card h-[80vh]"></div>;
 
   const targetJob = jobs.find(j => j.id === selectedJobId);
+  
+  // FIX: Filter out skills the user already possesses from the gaps list
+  const userSkillNames = personData?.skills?.map(s => s.name) || [];
+  const trueMissingSkills = skillGaps.filter(jobSkill => !userSkillNames.includes(jobSkill.name));
 
   return (
     <div className="space-y-6 animate-in fade-in duration-500">
@@ -105,9 +132,48 @@ export default function Profile() {
           {/* Left Column: Skills and Gap Analysis */}
           <div className="space-y-6">
             <div className="glass-card p-6">
-              <h2 className="text-xl font-bold mb-4 border-b border-white/10 pb-2 flex items-center gap-2">
-                Your Current Skills
-              </h2>
+              <div className="flex justify-between items-center mb-4 border-b border-white/10 pb-2">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  Your Current Skills
+                </h2>
+                
+                {isAdding ? (
+                  <div className="flex items-center gap-2">
+                    <select 
+                      value={selectedSkill} 
+                      onChange={(e) => setSelectedSkill(e.target.value)}
+                      className="bg-background text-text px-2 py-1 rounded border border-white/10 text-sm outline-none focus:border-primary/50"
+                      disabled={isSubmitting}
+                    >
+                      <option value="">Select Skill...</option>
+                      {allSkills.filter(s => !userSkillNames.includes(s.name)).map((s) => (
+                        <option key={s.id} value={s.name}>{s.name}</option>
+                      ))}
+                    </select>
+                    <button 
+                      onClick={handleAddSkillSubmit}
+                      disabled={isSubmitting || !selectedSkill}
+                      className="bg-primary px-3 py-1 rounded text-sm font-bold hover:bg-primary/90 text-background disabled:opacity-50"
+                    >
+                      Save
+                    </button>
+                    <button 
+                      onClick={() => setIsAdding(false)}
+                      disabled={isSubmitting}
+                      className="text-secondary hover:text-text text-sm transition-colors"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button 
+                    onClick={() => setIsAdding(true)}
+                    className="flex items-center gap-1 text-xs font-bold px-3 py-1 bg-primary/20 hover:bg-primary/30 text-primary rounded-full transition-colors border border-primary/30"
+                  >
+                    <Plus className="w-3 h-3" /> Add Skill
+                  </button>
+                )}
+              </div>
               <div className="flex flex-wrap gap-2">
                 {personData.skills?.map(skill => (
                   <span key={skill.id} className="px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-lg flex items-center gap-2 text-sm">
@@ -146,7 +212,7 @@ export default function Profile() {
                     Comparing your profile against <strong className="text-text">{targetJob?.title}</strong> requirements:
                   </p>
                   
-                  {skillGaps.length === 0 ? (
+                  {trueMissingSkills.length === 0 ? (
                     <div className="p-4 bg-success/10 border border-success/30 rounded-lg text-success flex items-center gap-3">
                       <CheckCircle2 className="w-6 h-6" />
                       <div>
@@ -157,10 +223,10 @@ export default function Profile() {
                   ) : (
                     <div className="space-y-3">
                       <p className="font-medium text-warning flex items-center gap-2">
-                        <AlertTriangle className="w-4 h-4" /> Missing {skillGaps.length} required skills:
+                        <AlertTriangle className="w-4 h-4" /> Missing {trueMissingSkills.length} required skills:
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {skillGaps.map(skill => (
+                        {trueMissingSkills.map(skill => (
                           <Link 
                             key={skill.id} 
                             to={`/skills?id=${skill.id}`}
@@ -198,13 +264,17 @@ export default function Profile() {
                   >
                     <div className="flex justify-between items-center mb-2">
                       <h3 className="font-bold text-text group-hover:text-primary transition-colors">{rec.title}</h3>
-                      <div className="flex flex-col items-end">
-                         <span className="text-xs text-secondary uppercase tracking-wider mb-1">Match Score</span>
-                         <span className={`px-2 py-0.5 rounded text-xs font-bold ${
-                           rec.score > 2 ? 'bg-success/20 text-success' : 'bg-primary/20 text-primary'
-                         }`}>
-                           {rec.score > 2 ? 'High' : 'Medium'} ({rec.score})
-                         </span>
+                      <div className="flex flex-col items-end w-32">
+                        <span className="text-xs text-secondary uppercase tracking-wider mb-1">Match Score</span>
+                        <div className="w-full h-2 bg-white/10 rounded-full overflow-hidden mt-1 mb-1">
+                          <div 
+                            className={`h-full rounded-full ${rec.score > 4 ? 'bg-success' : 'bg-primary'}`} 
+                            style={{ width: `${Math.min(rec.score * 15, 100)}%` }}
+                          ></div>
+                        </div>
+                        <span className="text-[10px] text-secondary font-medium">
+                          {Math.min(rec.score * 15, 100)}% Match ({rec.score} skills)
+                        </span>
                       </div>
                     </div>
                     <p className="text-xs text-secondary">{rec.level}</p>

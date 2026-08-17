@@ -11,10 +11,16 @@ CareerGraph is a graph-based career exploration platform that connects People to
 - **Graph Explorer**: Visually traverse the entire career graph using React Flow. See how technologies connect to jobs and companies.
 
 ## Why a Graph Database?
-Traditional relational databases are good at storing isolated records (like a table of users, or a table of jobs). However, career decisions are inherently relationship-driven:
-`JavaScript -> related to -> React -> required by -> Frontend Engineer -> offered by -> Acme AI`.
 
-A relational database could store these entities, but recursive skill relationships and multi-hop career recommendations become extremely cumbersome and slow. A graph database like CognoDB (Neo4j-compatible) makes relationship traversal a first-class operation, allowing us to express complex, multi-hop queries efficiently and elegantly using Cypher.
+For a career discovery and skill gap analysis system, entities are deeply interconnected:
+- **Users** have multiple **Skills**.
+- **Jobs** require multiple **Skills** and are offered by **Companies**.
+- **Skills** relate to other **Skills** (e.g., React -> JavaScript).
+
+### Why Graph (openCypher / CognoDB) over Relational (SQL):
+1. **Multi-Hop Traversal Performance:** Finding "Jobs I match based on my skills" or "Missing skills for my target role" requires traversing `User -> Skill -> Job -> Missing Skill`. In SQL, this involves complex multi-table `JOIN` operations that degrade as data grows. In Cypher, path matching (`(u:User)-[:HAS_SKILL]->(:Skill)<-[:REQUIRES]-(j:Job)`) executes in constant time relative to the subgraph size.
+2. **Flexible Schema Adaptation:** New relationship types (e.g., `APPLIED_TO`, `RECOMMENDED_BY`, `INTERESTED_IN`) can be added without alter-table migrations or breaking existing schemas.
+3. **Graph Explorer & Analytics:** Visualizing network relationships directly map to real-world domain mental models, making interactive exploration far more intuitive.
 
 ## Architecture
 The application uses a 3-layer architecture:

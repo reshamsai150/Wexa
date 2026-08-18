@@ -174,7 +174,7 @@ Runs on `http://localhost:5173`.
 [https://wexaai.netlify.app/](https://wexaai.netlify.app/)
 
 ## Screen Recording
-*(Add loom/youtube link here)*
+[Watch Demo Video](https://drive.google.com/file/d/1-xp9UWUSqSCgBWiBbsKdtAZG_rRIcsSE/view?usp=sharing)
 
 ## Future Improvements
 - Add authentication (JWT) to manage real user profiles.

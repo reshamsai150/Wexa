@@ -180,3 +180,4 @@ Runs on `http://localhost:5173`.
 - Add authentication (JWT) to manage real user profiles.
 - Integrate LLMs to auto-generate personalized career path suggestions based on graph data.
 - Enhance the GraphExplorer with drag-and-drop node editing.
+

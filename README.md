@@ -171,7 +171,7 @@ Runs on `http://localhost:5173`.
 *(Add screenshots here)*
 
 ## Demo
-*(Add hosted link here)*
+[https://wexaai.netlify.app/](https://wexaai.netlify.app/)
 
 ## Screen Recording
 *(Add loom/youtube link here)*

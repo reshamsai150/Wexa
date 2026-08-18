@@ -1,4 +1,4 @@
-# CareerGraph
+<img width="1919" height="897" alt="Screenshot 2026-08-18 110401" src="https://github.com/user-attachments/assets/8ea33eb8-2cec-4cb7-a50b-212caaf9828d" /># CareerGraph
 
 ## Overview
 CareerGraph is a graph-based career exploration platform that connects People to Skills, Jobs, Companies, and Projects. It allows users to explore job requirements, understand skill relationships, identify missing skills (skill gap), and visually discover career paths using a graph database.
@@ -168,7 +168,11 @@ Runs on `http://localhost:5173`.
 - Backend can be deployed to Render or Heroku. Make sure to set the environment variables in your hosting provider's dashboard.
 
 ## Screenshots
-*(Add screenshots here)*
+<img width="1919" height="897" alt="Screenshot 2026-08-18 110401" src="https://github.com/user-attachments/assets/aa55fb98-4421-4412-8535-4738b0c7a1ca" /><img width="1907" height="897" alt="Screenshot 2026-08-18 110611" src="https://github.com/user-attachments/assets/0fe4012a-8b5f-43ae-aa92-b40cc0cedc17" />
+<img width="1900" height="894" alt="Screenshot 2026-08-18 110510" src="https://github.com/user-attachments/assets/faaf47e9-578e-44a9-8580-bf122026b107" />
+<img width="1897" height="917" alt="Screenshot 2026-08-18 110444" src="https://github.com/user-attachments/assets/a6e6c254-3896-45f7-b1bc-2b697c194f21" />
+
+
 
 ## Demo
 [https://wexaai.netlify.app/](https://wexaai.netlify.app/)
